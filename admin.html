@@ -115,9 +115,25 @@ table.s-tb tr:last-child td{border-bottom:0}
 table.s-tb td.k{color:#a08748}
 .s-foot{margin-top:30px;text-align:center;font-size:11px;color:#a9a48a;letter-spacing:.14em}
 
+@media(max-width:700px){
+  #overlay{padding:14px 8px 50px}
+  .obar{justify-content:center;margin-bottom:10px}
+  .obar button{padding:9px 14px;font-size:13px}
+  .sheet{padding:26px 18px 22px}
+  .sheet::before{inset:8px}
+  .s-title{font-size:23px;letter-spacing:.2em}
+  .s-meta{grid-template-columns:1fr 1fr}
+  .s-items{grid-template-columns:1fr}
+  .s-item{padding:11px 14px}
+  .s-tbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.s-tb{font-size:12px;min-width:430px}
+  table.s-tb th,table.s-tb td{padding:7px 6px}
+}
+body.locked{overflow:hidden}
 @media print{
   @page{size:A4;margin:11mm}
-  body{background:#fff;padding:0}
+  .s-tbwrap{overflow:visible}
+  body,body.locked{background:#fff;padding:0;overflow:visible}
   .wrap,.toast{display:none!important}
   #overlay{display:block;position:static;background:#fff;padding:0;overflow:visible}
   .obar{display:none!important}
@@ -187,9 +203,10 @@ table.s-tb td.k{color:#a08748}
               <div class="opt" data-v="不需要主食"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要主食</b></span></div>
             </div>
           </div>
-          <div class="sec"><h3>湯品（單點，可不加）</h3>
+          <div class="sec"><h3>湯品</h3>
             <div class="opts" data-group="soup-kid">
-              <div class="opt box" data-v="南瓜濃湯" data-multi="1"><span class="dot"></span><span class="em">🎃</span><span class="tx"><b>南瓜濃湯</b></span></div>
+              <div class="opt" data-v="南瓜濃湯"><span class="dot"></span><span class="em">🎃</span><span class="tx"><b>南瓜濃湯</b></span></div>
+              <div class="opt" data-v="不需要湯品"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要湯品</b></span></div>
             </div>
           </div>
           <div class="sec"><h3>飲料</h3>
@@ -294,7 +311,7 @@ table.s-tb td.k{color:#a08748}
     orders.forEach(function(o){
       if(o.type==='kid'){t.kid++;
         if(o.main&&o.main!=='不需要主食')t.mainK[o.main]=(t.mainK[o.main]||0)+1;
-        if(o.soup)t.soup[o.soup]=(t.soup[o.soup]||0)+1;
+        if(o.soup&&o.soup!=='不需要湯品')t.soup[o.soup]=(t.soup[o.soup]||0)+1;
       }else{t.adult++;t.mainA[o.main]=(t.mainA[o.main]||0)+1;}
       if(o.drink&&o.drink!=='不需要飲料')t.drink[o.drink]=(t.drink[o.drink]||0)+1;
       if(o.note)t.notes.push({name:o.name,note:o.note});
@@ -319,12 +336,12 @@ table.s-tb td.k{color:#a08748}
     $('#tKid').textContent=t.kid;
     var max=Math.max(1,orders.length);
     $('#stats').innerHTML=(statBlock('主菜（大人）',t.mainA,max)+statBlock('主食（兒童）',t.mainK,max)+
-      statBlock('湯品（兒童加點）',t.soup,max)+statBlock('飲料',t.drink,max))||
+      statBlock('湯品',t.soup,max)+statBlock('飲料',t.drink,max))||
       '<div class="empty">還沒有資料，先貼上點單碼或手動代填</div>';
 
     if(!orders.length){$('#list').innerHTML='<div class="empty">尚未有人點餐</div>';return;}
     $('#list').innerHTML=orders.map(function(o,i){
-      var d=[o.main]; if(o.soup)d.push(o.soup);
+      var d=[o.main]; if(o.soup&&o.soup!=='不需要湯品')d.push(o.soup);
       if(o.drink&&o.drink!=='不需要飲料')d.push(o.drink);
       if(o.note)d.push('備註：'+o.note);
       return '<div class="row"><div class="av'+(o.type==='kid'?' kid':'')+'">'+(o.type==='kid'?'童':'大')+
@@ -335,11 +352,20 @@ table.s-tb td.k{color:#a08748}
 
   /* ---------- 匯入 / 匯出 ---------- */
   function copy(text,msg){
-    var ta=document.createElement('textarea');ta.value=text;
-    ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');toast(msg);}catch(e){toast('請手動複製');}
-    document.body.removeChild(ta);
+    function legacy(){
+      var ta=document.createElement('textarea');
+      ta.value=text;
+      ta.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;font-size:16px;opacity:.01';
+      document.body.appendChild(ta);
+      ta.focus(); ta.setSelectionRange(0,ta.value.length);
+      var ok=false;
+      try{ ok=document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+      toast(ok?msg:'複製失敗，請手動選取');
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){toast(msg);},legacy);
+    }else{ legacy(); }
   }
 
   $('#imp').onclick=function(){
@@ -422,7 +448,7 @@ table.s-tb td.k{color:#a08748}
     var con=$('#mCon').value.trim()||'—';
 
     var rows=orders.map(function(o,i){
-      var extra=[];if(o.soup)extra.push(o.soup);
+      var extra=[];if(o.soup&&o.soup!=='不需要湯品')extra.push(o.soup);
       if(o.drink&&o.drink!=='不需要飲料')extra.push(o.drink);
       return '<tr><td style="width:36px;color:#b3ab8d">'+(i+1)+'</td><td>'+esc(o.name)+'</td>'+
         '<td style="width:56px">'+(o.type==='kid'?'小孩':'大人')+'</td><td>'+esc(o.main)+'</td>'+
@@ -445,8 +471,8 @@ table.s-tb td.k{color:#a08748}
       (t.notes.length?'<div class="s-sec"><h3>特殊需求</h3><div class="s-note">'+
         t.notes.map(function(x){return '<b>'+esc(x.name)+'</b>　'+esc(x.note);}).join('<br>')+
         '</div></div>':'')+
-      '<div class="s-sec"><h3>訂餐明細</h3><table class="s-tb"><thead><tr><th></th><th>姓名</th><th>身分</th>'+
-      '<th>主菜 / 主食</th><th>加點 · 飲料</th><th>備註</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<div class="s-sec"><h3>訂餐明細</h3><div class="s-tbwrap"><table class="s-tb"><thead><tr><th></th><th>姓名</th><th>身分</th>'+
+      '<th>主菜 / 主食</th><th>加點 · 飲料</th><th>備註</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'+
       '<div class="s-foot">本訂單由「啄木鳥的家 WPCASA 聚餐點單系統」產生　·　'+stamp+'</div>'+
       '</div>';
   }
@@ -455,9 +481,13 @@ table.s-tb td.k{color:#a08748}
     if(!orders.length){toast('目前沒有資料，無法產生訂單表');return;}
     $('#sheetHost').innerHTML=sheetHTML();
     $('#overlay').classList.add('show');
+    document.body.classList.add('locked');
     window.scrollTo(0,0);
   };
-  $('#pClose').onclick=function(){$('#overlay').classList.remove('show');};
+  $('#pClose').onclick=function(){
+    $('#overlay').classList.remove('show');
+    document.body.classList.remove('locked');
+  };
   $('#pPrint').onclick=function(){window.print();};
   $('#pDown').onclick=function(){
     var css=Array.prototype.map.call(document.styleSheets[0].cssRules,function(r){return r.cssText;}).join('\n');

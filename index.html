@@ -115,10 +115,12 @@ footer{text-align:center;color:#a3a38b;font-size:12px;margin-top:30px;letter-spa
         </div>
       </div>
       <div class="sec">
-        <h3>湯品（單點，可不加）</h3>
+        <h3>湯品</h3>
         <div class="opts" data-group="soup-kid">
-          <div class="opt box" data-v="南瓜濃湯" data-multi="1"><span class="dot"></span><span class="em">🎃</span>
-            <span class="tx"><b>南瓜濃湯</b><span>勾選即加點一份</span></span></div>
+          <div class="opt" data-v="南瓜濃湯"><span class="dot"></span><span class="em">🎃</span>
+            <span class="tx"><b>南瓜濃湯</b><span>單點一份</span></span></div>
+          <div class="opt" data-v="不需要湯品"><span class="dot"></span><span class="em">✕</span>
+            <span class="tx"><b>不需要湯品</b></span></div>
         </div>
       </div>
       <div class="sec">
@@ -148,8 +150,9 @@ footer{text-align:center;color:#a3a38b;font-size:12px;margin-top:30px;letter-spa
     <div class="chip-row"><span class="chip">送出點單</span></div>
     <div class="step">① 按下方按鈕產生「點單碼」<br>② 點單碼會自動複製起來<br>③ 貼到群組傳給統籌人員即可</div>
     <button class="btn" id="gen">產生點單碼並複製</button>
-    <textarea id="code" placeholder="按上方按鈕後，點單碼會出現在這裡" readonly></textarea>
-    <p class="hint">若按鈕沒有自動複製成功，請長按上面的文字框全選複製。</p>
+    <button class="btn ghost" id="share" style="display:none">分享給統籌人員（LINE…）</button>
+    <textarea id="code" placeholder="按上方按鈕後，點單碼會出現在這裡"></textarea>
+    <p class="hint">若沒有自動複製成功，請長按上面的文字框 → 全選 → 複製。</p>
   </div>
 
   <footer>啄木鳥的家 WPCASA · 員工旅遊聚餐點單</footer>
@@ -197,7 +200,7 @@ footer{text-align:center;color:#a3a38b;font-size:12px;margin-top:30px;letter-spa
   function render(){
     if(!orders.length){$('#list').innerHTML='<div class="empty">還沒有點餐紀錄</div>';return;}
     $('#list').innerHTML=orders.map(function(o,i){
-      var d=[o.main]; if(o.soup)d.push(o.soup);
+      var d=[o.main]; if(o.soup&&o.soup!=='不需要湯品')d.push(o.soup);
       if(o.drink&&o.drink!=='不需要飲料')d.push(o.drink);
       if(o.note)d.push('備註：'+o.note);
       return '<div class="row"><div class="av'+(o.type==='kid'?' kid':'')+'">'+(o.type==='kid'?'童':'大')+
@@ -207,19 +210,38 @@ footer{text-align:center;color:#a3a38b;font-size:12px;margin-top:30px;letter-spa
       orders.splice(+b.dataset.i,1);render();$('#code').value='';};});
   }
 
+  // 手機相容的複製：優先用 Clipboard API，失敗再用可見文字框選取（iOS Safari 適用）
   function copy(text,msg){
-    var ta=document.createElement('textarea');ta.value=text;
-    ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');toast(msg);}catch(e){toast('請手動複製下方文字');}
-    document.body.removeChild(ta);
+    function legacy(){
+      var ta=$('#code');
+      ta.value=text; ta.focus();
+      ta.setSelectionRange(0,ta.value.length);
+      var ok=false;
+      try{ ok=document.execCommand('copy'); }catch(e){}
+      ta.blur();
+      toast(ok?msg:'請長按下方文字框 → 全選 → 複製');
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){toast(msg);},legacy);
+    }else{ legacy(); }
   }
 
   $('#gen').onclick=function(){
     if(!orders.length){toast('請先加入至少一筆點單');return;}
-    var s='WPCASA'+JSON.stringify(orders);
-    $('#code').value=s; copy(s,'點單碼已複製，貼到群組就完成了');
+    var s=code(); $('#code').value=s; copy(s,'點單碼已複製，貼到群組就完成了');
   };
+
+  function code(){ return 'WPCASA'+JSON.stringify(orders); }
+
+  // 手機的系統分享（可直接傳到 LINE）
+  if(navigator.share){
+    $('#share').style.display='';
+    $('#share').onclick=function(){
+      if(!orders.length){toast('請先加入至少一筆點單');return;}
+      var s=code(); $('#code').value=s;
+      navigator.share({title:'聚餐點單碼',text:s}).catch(function(){});
+    };
+  }
 
   $('#name').addEventListener('keydown',function(e){if(e.key==='Enter')$('#add').click();});
   render();
