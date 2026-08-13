@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>啄木鳥的家 · 員工旅遊聚餐點單</title>
+<style>
+:root{--green:#4d6136;--green-d:#3a4a28;--green-l:#7e9160;--card:#fffdf7;--line:#e3dcc6;--ink:#3b3b2f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  background:radial-gradient(1200px 500px at 50% -10%,#fffdf3 0%,transparent 60%),linear-gradient(180deg,#f9f5e9,#f2eddc);
+  color:var(--ink);min-height:100vh;padding:24px 16px 60px;line-height:1.6}
+.wrap{max-width:520px;margin:0 auto}
+.hero{text-align:center;padding:14px 0 24px}
+.logo{font-size:13px;letter-spacing:.42em;color:var(--green-l);margin-bottom:6px}
+.brand{font-size:18px;letter-spacing:.28em;color:var(--green);font-weight:700}
+.hero h1{font-size:clamp(24px,6vw,32px);letter-spacing:.18em;color:var(--green-d);margin:12px 0 6px;font-weight:700}
+.hero p{color:#7d7d67;font-size:13.5px;letter-spacing:.05em}
+.rule{width:110px;height:1px;background:var(--line);margin:16px auto 0;position:relative}
+.rule::after{content:"❧";position:absolute;top:-13px;left:50%;transform:translateX(-50%);color:var(--green-l);font-size:14px;padding:0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 6px 22px rgba(90,80,50,.07)}
+.card+.card{margin-top:18px}
+.chip{display:inline-block;background:var(--green);color:#fff;border-radius:999px;padding:5px 20px;font-size:14px;letter-spacing:.18em}
+.chip-row{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.chip-row::after,.chip-row::before{content:"";height:1px;background:var(--line);flex:1}
+label.fld{display:block;font-size:13px;color:#77775f;letter-spacing:.1em;margin:0 0 7px}
+input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#fffef9;font-size:16px;font-family:inherit;color:var(--ink)}
+input[type=text]:focus{outline:none;border-color:var(--green-l);box-shadow:0 0 0 3px rgba(126,145,96,.15)}
+.seg{display:flex;gap:8px;background:#f1ecdb;padding:5px;border-radius:12px}
+.seg button{flex:1;padding:10px;border:0;border-radius:9px;background:transparent;cursor:pointer;font-family:inherit;font-size:15px;color:#7a7a63;transition:.18s}
+.seg button.on{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(77,97,54,.28)}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;cursor:pointer;background:#fffef9;transition:.16s}
+.opt:hover{border-color:var(--green-l);background:#fbf9ee}
+.opt.on{border-color:var(--green);background:#f2f5ea;box-shadow:inset 0 0 0 1px var(--green)}
+.opt .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid #c9c2a6;flex:none;position:relative}
+.opt.on .dot{border-color:var(--green)}
+.opt.on .dot::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--green)}
+.opt.box .dot{border-radius:5px}.opt.box.on .dot::after{border-radius:2px}
+.opt .em{font-size:22px;line-height:1}
+.opt .tx{flex:1}.opt .tx b{display:block;font-weight:600;font-size:15.5px}.opt .tx span{font-size:12.5px;color:#96967c}
+.sec{margin-top:20px}
+.sec h3{font-size:14px;color:var(--green);letter-spacing:.16em;margin-bottom:10px;font-weight:700}
+.btn{width:100%;padding:14px;border:0;border-radius:13px;background:var(--green);color:#fff;font-family:inherit;font-size:16px;letter-spacing:.14em;cursor:pointer;margin-top:22px;transition:.18s;box-shadow:0 4px 14px rgba(77,97,54,.3)}
+.btn:hover{background:var(--green-d)}
+.btn.ghost{background:transparent;color:var(--green);border:1px solid var(--green-l);box-shadow:none;margin-top:10px}
+.btn.ghost:hover{background:#f2f5ea}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.av{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+.av.kid{background:#c9a45c}
+.row .info{flex:1;min-width:0}.row .info b{font-size:15px}
+.row .info p{font-size:12.5px;color:#8e8e74}
+.del{border:0;background:transparent;color:#c0725f;cursor:pointer;font-size:13px;padding:6px}
+.empty{text-align:center;color:#a9a992;padding:22px 0;font-size:14px}
+textarea{width:100%;height:90px;margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;background:#fbf9f0;color:#6d6d58;resize:vertical}
+.hint{font-size:12.5px;color:#9a9a80;margin-top:10px;line-height:1.75}
+.step{background:#f2f5ea;border:1px solid #dfe5d2;border-radius:12px;padding:12px 14px;font-size:13px;color:#5d6b4c;line-height:1.8}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--green-d);color:#fff;padding:11px 22px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:9}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;color:#a3a38b;font-size:12px;margin-top:30px;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="logo">✦</div>
+    <div class="brand">啄木鳥的家 WPCASA</div>
+    <h1>員工旅遊 · 聚餐點單</h1>
+    <p>請填寫姓名並選擇餐點，一個人可以幫家人一起點</p>
+    <div class="rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="chip-row"><span class="chip">我要點餐</span></div>
+
+    <label class="fld">姓名</label>
+    <input type="text" id="name" placeholder="請輸入姓名" autocomplete="off">
+
+    <div class="sec">
+      <label class="fld">用餐身分</label>
+      <div class="seg">
+        <button type="button" data-type="adult" class="on">大人菜單</button>
+        <button type="button" data-type="kid">兒童菜單</button>
+      </div>
+    </div>
+
+    <div id="adultBox">
+      <div class="sec">
+        <h3>主菜（二選一）</h3>
+        <div class="opts" data-group="main-adult">
+          <div class="opt" data-v="慢烤豬肋排"><span class="dot"></span><span class="em">🍖</span>
+            <span class="tx"><b>慢烤豬肋排</b><span>招牌慢火烘烤</span></span></div>
+          <div class="opt" data-v="炙烤章魚"><span class="dot"></span><span class="em">🐙</span>
+            <span class="tx"><b>炙烤章魚</b><span>橄欖油香草風味</span></span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>飲料</h3>
+        <div class="opts" data-group="drink-adult">
+          <div class="opt" data-v="冰烏龍茶"><span class="dot"></span><span class="em">🧊</span><span class="tx"><b>冰烏龍茶</b></span></div>
+          <div class="opt" data-v="熱烏龍茶"><span class="dot"></span><span class="em">🍵</span><span class="tx"><b>熱烏龍茶</b></span></div>
+          <div class="opt" data-v="不需要飲料"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要飲料</b></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="kidBox" style="display:none">
+      <div class="sec">
+        <h3>主食（二選一）</h3>
+        <div class="opts" data-group="main-kid">
+          <div class="opt" data-v="手工肉腸 PIZZA"><span class="dot"></span><span class="em">🍕</span><span class="tx"><b>手工肉腸 PIZZA</b></span></div>
+          <div class="opt" data-v="東岸甜蝦粗圓麵"><span class="dot"></span><span class="em">🍤</span><span class="tx"><b>東岸甜蝦粗圓麵</b></span></div>
+          <div class="opt" data-v="不需要主食"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要主食</b><span>與大人共餐</span></span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>湯品（單點，可不加）</h3>
+        <div class="opts" data-group="soup-kid">
+          <div class="opt box" data-v="南瓜濃湯" data-multi="1"><span class="dot"></span><span class="em">🎃</span>
+            <span class="tx"><b>南瓜濃湯</b><span>勾選即加點一份</span></span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h3>飲料</h3>
+        <div class="opts" data-group="drink-kid">
+          <div class="opt" data-v="冰烏龍茶"><span class="dot"></span><span class="em">🧊</span><span class="tx"><b>冰烏龍茶</b></span></div>
+          <div class="opt" data-v="熱烏龍茶"><span class="dot"></span><span class="em">🍵</span><span class="tx"><b>熱烏龍茶</b></span></div>
+          <div class="opt" data-v="不需要飲料"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要飲料</b></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <label class="fld">備註（過敏、不吃某食材…）</label>
+      <input type="text" id="note" placeholder="選填" autocomplete="off">
+    </div>
+
+    <button class="btn" id="add">加入點單</button>
+  </div>
+
+  <div class="card">
+    <div class="chip-row"><span class="chip">我的點單</span></div>
+    <div id="list"><div class="empty">還沒有點餐紀錄</div></div>
+  </div>
+
+  <div class="card">
+    <div class="chip-row"><span class="chip">送出點單</span></div>
+    <div class="step">① 按下方按鈕產生「點單碼」<br>② 點單碼會自動複製起來<br>③ 貼到群組傳給統籌人員即可</div>
+    <button class="btn" id="gen">產生點單碼並複製</button>
+    <textarea id="code" placeholder="按上方按鈕後，點單碼會出現在這裡" readonly></textarea>
+    <p class="hint">若按鈕沒有自動複製成功，請長按上面的文字框全選複製。</p>
+  </div>
+
+  <footer>啄木鳥的家 WPCASA · 員工旅遊聚餐點單</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var orders=[], cur='adult', sel={};
+  function $(s){return document.querySelector(s);}
+  function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+  function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');
+    clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1900);}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  $$('.seg button').forEach(function(b){b.onclick=function(){
+    $$('.seg button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); cur=b.dataset.type;
+    $('#adultBox').style.display=cur==='adult'?'':'none';
+    $('#kidBox').style.display=cur==='kid'?'':'none';};});
+
+  $$('.opt').forEach(function(o){o.onclick=function(){
+    var g=o.parentNode.dataset.group;
+    if(o.dataset.multi){o.classList.toggle('on');sel[g]=o.classList.contains('on')?o.dataset.v:'';}
+    else{Array.prototype.forEach.call(o.parentNode.children,function(c){c.classList.remove('on');});
+      o.classList.add('on');sel[g]=o.dataset.v;}};});
+
+  function clearForm(){$('#name').value='';$('#note').value='';
+    $$('.opt').forEach(function(o){o.classList.remove('on');});sel={};}
+
+  $('#add').onclick=function(){
+    var name=$('#name').value.trim();
+    if(!name){toast('請先輸入姓名');$('#name').focus();return;}
+    var mk=cur==='adult'?'main-adult':'main-kid';
+    if(!sel[mk]){toast(cur==='adult'?'請選擇主菜':'請選擇主食');return;}
+    orders.push({name:name,type:cur,main:sel[mk],
+      soup:cur==='kid'?(sel['soup-kid']||''):'',
+      drink:(cur==='adult'?sel['drink-adult']:sel['drink-kid'])||'',
+      note:$('#note').value.trim()});
+    clearForm();render();$('#code').value='';toast('已加入 '+name+' 的點單');
+    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  };
+
+  function render(){
+    if(!orders.length){$('#list').innerHTML='<div class="empty">還沒有點餐紀錄</div>';return;}
+    $('#list').innerHTML=orders.map(function(o,i){
+      var d=[o.main]; if(o.soup)d.push(o.soup);
+      if(o.drink&&o.drink!=='不需要飲料')d.push(o.drink);
+      if(o.note)d.push('備註：'+o.note);
+      return '<div class="row"><div class="av'+(o.type==='kid'?' kid':'')+'">'+(o.type==='kid'?'童':'大')+
+        '</div><div class="info"><b>'+esc(o.name)+'</b><p>'+esc(d.join('　·　'))+
+        '</p></div><button class="del" data-i="'+i+'">刪除</button></div>';}).join('');
+    $$('.del').forEach(function(b){b.onclick=function(){
+      orders.splice(+b.dataset.i,1);render();$('#code').value='';};});
+  }
+
+  function copy(text,msg){
+    var ta=document.createElement('textarea');ta.value=text;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast(msg);}catch(e){toast('請手動複製下方文字');}
+    document.body.removeChild(ta);
+  }
+
+  $('#gen').onclick=function(){
+    if(!orders.length){toast('請先加入至少一筆點單');return;}
+    var s='WPCASA'+JSON.stringify(orders);
+    $('#code').value=s; copy(s,'點單碼已複製，貼到群組就完成了');
+  };
+
+  $('#name').addEventListener('keydown',function(e){if(e.key==='Enter')$('#add').click();});
+  render();
+})();
+</script>
+</body>
+</html>

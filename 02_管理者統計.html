@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>啄木鳥的家 · 聚餐點單統計（管理者）</title>
+<style>
+:root{--green:#4d6136;--green-d:#3a4a28;--green-l:#7e9160;--card:#fffdf7;--line:#e3dcc6;--ink:#3b3b2f;--gold:#b8944f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  background:radial-gradient(1200px 500px at 50% -10%,#fffdf3 0%,transparent 60%),linear-gradient(180deg,#f9f5e9,#f2eddc);
+  color:var(--ink);min-height:100vh;padding:24px 16px 60px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto}
+.hero{text-align:center;padding:14px 0 24px}
+.logo{font-size:13px;letter-spacing:.42em;color:var(--green-l);margin-bottom:6px}
+.brand{font-size:18px;letter-spacing:.28em;color:var(--green);font-weight:700}
+.hero h1{font-size:clamp(24px,5vw,34px);letter-spacing:.18em;color:var(--green-d);margin:12px 0 6px;font-weight:700}
+.hero p{color:#7d7d67;font-size:13.5px}
+.tag{display:inline-block;margin-top:8px;background:#efe7d3;color:#8a7642;border-radius:999px;padding:3px 14px;font-size:12px;letter-spacing:.16em}
+.rule{width:110px;height:1px;background:var(--line);margin:16px auto 0;position:relative}
+.rule::after{content:"❧";position:absolute;top:-13px;left:50%;transform:translateX(-50%);color:var(--green-l);font-size:14px;padding:0 8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 6px 22px rgba(90,80,50,.07)}
+.card+.card{margin-top:20px}
+.chip{display:inline-block;background:var(--green);color:#fff;border-radius:999px;padding:5px 20px;font-size:14px;letter-spacing:.18em}
+.chip-row{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.chip-row::after,.chip-row::before{content:"";height:1px;background:var(--line);flex:1}
+label.fld{display:block;font-size:13px;color:#77775f;letter-spacing:.1em;margin:0 0 7px}
+input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#fffef9;font-size:16px;font-family:inherit;color:var(--ink)}
+input[type=text]:focus{outline:none;border-color:var(--green-l);box-shadow:0 0 0 3px rgba(126,145,96,.15)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;gap:8px;background:#f1ecdb;padding:5px;border-radius:12px}
+.seg button{flex:1;padding:10px;border:0;border-radius:9px;background:transparent;cursor:pointer;font-family:inherit;font-size:15px;color:#7a7a63;transition:.18s}
+.seg button.on{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(77,97,54,.28)}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;cursor:pointer;background:#fffef9;transition:.16s}
+.opt:hover{border-color:var(--green-l);background:#fbf9ee}
+.opt.on{border-color:var(--green);background:#f2f5ea;box-shadow:inset 0 0 0 1px var(--green)}
+.opt .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid #c9c2a6;flex:none;position:relative}
+.opt.on .dot{border-color:var(--green)}
+.opt.on .dot::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--green)}
+.opt.box .dot{border-radius:5px}.opt.box.on .dot::after{border-radius:2px}
+.opt .em{font-size:22px;line-height:1}
+.opt .tx{flex:1}.opt .tx b{display:block;font-weight:600;font-size:15.5px}.opt .tx span{font-size:12.5px;color:#96967c}
+.sec{margin-top:20px}
+.sec h3{font-size:14px;color:var(--green);letter-spacing:.16em;margin-bottom:10px;font-weight:700}
+.btn{width:100%;padding:14px;border:0;border-radius:13px;background:var(--green);color:#fff;font-family:inherit;font-size:16px;letter-spacing:.14em;cursor:pointer;margin-top:22px;transition:.18s;box-shadow:0 4px 14px rgba(77,97,54,.3)}
+.btn:hover{background:var(--green-d)}
+.btn.gold{background:var(--gold);box-shadow:0 4px 14px rgba(184,148,79,.35)}
+.btn.gold:hover{background:#a5823f}
+.btn.ghost{background:transparent;color:var(--green);border:1px solid var(--green-l);box-shadow:none;margin-top:10px}
+.btn.ghost:hover{background:#f2f5ea}
+.btn.sm{padding:9px 14px;font-size:13px;width:auto;margin:0;letter-spacing:.08em}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.tile{background:#f4f1e2;border-radius:13px;padding:14px 10px;text-align:center}
+.tile b{display:block;font-size:26px;color:var(--green-d);line-height:1.2}
+.tile span{font-size:12px;color:#8b8b70;letter-spacing:.1em}
+.stat{margin-bottom:11px}
+.stat .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.stat .top b{color:var(--green-d)}
+.bar{height:8px;background:#efeada;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green-l),var(--green));border-radius:99px;transition:.4s}
+.gtitle{font-size:12.5px;color:#9a9a80;letter-spacing:.14em;margin:16px 0 8px;border-bottom:1px dashed var(--line);padding-bottom:5px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.av{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+.av.kid{background:#c9a45c}
+.row .info{flex:1;min-width:0}.row .info b{font-size:15px}
+.row .info p{font-size:12.5px;color:#8e8e74;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.del{border:0;background:transparent;color:#c0725f;cursor:pointer;font-size:13px;padding:6px}
+.empty{text-align:center;color:#a9a992;padding:26px 0;font-size:14px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+textarea{width:100%;height:96px;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;background:#fbf9f0;color:#6d6d58;resize:vertical}
+.hint{font-size:12.5px;color:#9a9a80;margin-top:9px;line-height:1.75}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--green-d);color:#fff;padding:11px 22px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:99}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;color:#a3a38b;font-size:12px;margin-top:34px;letter-spacing:.08em}
+
+/* ===== 餐廳訂單表 overlay ===== */
+#overlay{position:fixed;inset:0;background:rgba(58,58,47,.55);z-index:50;display:none;overflow:auto;padding:26px 14px 60px}
+#overlay.show{display:block}
+.obar{max-width:820px;margin:0 auto 14px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.obar button{padding:10px 18px;border:0;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;background:#fffdf7;color:var(--green-d);box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.obar button.p{background:var(--gold);color:#fff}
+#sheetHost{max-width:820px;margin:0 auto}
+
+.sheet{background:#fffdf6;padding:52px 54px 46px;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.22);
+  color:#3b3b2f;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",serif;position:relative}
+.sheet::before{content:"";position:absolute;inset:14px;border:1px solid #e0d8bd;border-radius:3px;pointer-events:none}
+.s-head{text-align:center;padding-bottom:20px;position:relative}
+.s-logo{font-size:11px;letter-spacing:.5em;color:#96a37c;margin-bottom:8px}
+.s-brand{font-size:16px;letter-spacing:.34em;color:#4d6136;font-weight:700}
+.s-title{font-size:30px;letter-spacing:.3em;color:#3a4a28;margin:16px 0 4px;font-weight:700}
+.s-sub{font-size:12px;letter-spacing:.28em;color:#a09a7e}
+.s-div{height:1px;background:#ded5b8;margin:22px 0;position:relative}
+.s-div::after{content:"❧";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#fffdf6;color:#96a37c;font-size:13px;padding:0 10px}
+.s-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+.s-meta div{text-align:center;padding:10px 6px;background:#f5f1e2;border-radius:8px}
+.s-meta span{display:block;font-size:10.5px;letter-spacing:.16em;color:#9a9276;margin-bottom:3px}
+.s-meta b{font-size:16px;color:#3a4a28;font-weight:700}
+.s-sec{margin-top:26px}
+.s-sec h3{font-size:13px;letter-spacing:.26em;color:#fff;background:#4d6136;display:inline-block;padding:4px 18px;border-radius:99px;margin-bottom:14px}
+.s-items{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.s-item{display:flex;align-items:center;justify-content:space-between;border:1px solid #e6dfc7;border-radius:10px;padding:13px 18px;background:#fffef9}
+.s-item .n{font-size:16px;letter-spacing:.05em}
+.s-item .q{font-size:15px;color:#4d6136;font-weight:700;white-space:nowrap}
+.s-item .q em{font-style:normal;font-size:23px;margin-right:2px}
+.s-note{border:1px dashed #d8cfae;border-radius:10px;padding:14px 18px;background:#fbf8ec;font-size:14px;line-height:2}
+.s-note b{color:#8a6d2f}
+table.s-tb{width:100%;border-collapse:collapse;font-size:13.5px}
+table.s-tb th{background:#f0ecd9;color:#5d6b4c;font-weight:600;letter-spacing:.12em;padding:9px 10px;text-align:left;font-size:12px}
+table.s-tb td{padding:9px 10px;border-bottom:1px solid #efe9d5}
+table.s-tb tr:last-child td{border-bottom:0}
+table.s-tb td.k{color:#a08748}
+.s-foot{margin-top:30px;text-align:center;font-size:11px;color:#a9a48a;letter-spacing:.14em}
+
+@media print{
+  @page{size:A4;margin:11mm}
+  body{background:#fff;padding:0}
+  .wrap,.toast{display:none!important}
+  #overlay{display:block;position:static;background:#fff;padding:0;overflow:visible}
+  .obar{display:none!important}
+  #sheetHost{max-width:none}
+  .sheet{box-shadow:none;padding:8px 10px;border-radius:0}
+  .sheet::before{display:none}
+  .s-sec{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="logo">✦</div>
+    <div class="brand">啄木鳥的家 WPCASA</div>
+    <h1>聚餐點單 · 統計後台</h1>
+    <p>貼上員工的點單碼即可合併統計，並輸出給餐廳的正式訂單表</p>
+    <div class="tag">管理者專用</div>
+    <div class="rule"></div>
+  </div>
+
+  <div class="grid">
+    <!-- 左：匯入 + 代填 -->
+    <div>
+      <div class="card">
+        <div class="chip-row"><span class="chip">貼上點單碼</span></div>
+        <textarea id="code" placeholder="把員工傳來的點單碼貼進來（可以一次貼很多筆，直接連續貼上就好），再按下方按鈕。"></textarea>
+        <button class="btn" id="imp">合併點單碼</button>
+        <div class="tools">
+          <button class="btn sm ghost" id="exp">產生總備份碼</button>
+          <button class="btn sm ghost" id="clr">清空全部</button>
+        </div>
+        <p class="hint">收單過程中若要中途離開，先按「產生總備份碼」複製保存；下次打開貼回來按「合併點單碼」即可還原。</p>
+      </div>
+
+      <div class="card">
+        <div class="chip-row"><span class="chip">手動代填</span></div>
+        <label class="fld">姓名</label>
+        <input type="text" id="name" placeholder="請輸入姓名" autocomplete="off">
+        <div class="sec">
+          <label class="fld">用餐身分</label>
+          <div class="seg">
+            <button type="button" data-type="adult" class="on">大人菜單</button>
+            <button type="button" data-type="kid">兒童菜單</button>
+          </div>
+        </div>
+        <div id="adultBox">
+          <div class="sec"><h3>主菜（二選一）</h3>
+            <div class="opts" data-group="main-adult">
+              <div class="opt" data-v="慢烤豬肋排"><span class="dot"></span><span class="em">🍖</span><span class="tx"><b>慢烤豬肋排</b></span></div>
+              <div class="opt" data-v="炙烤章魚"><span class="dot"></span><span class="em">🐙</span><span class="tx"><b>炙烤章魚</b></span></div>
+            </div>
+          </div>
+          <div class="sec"><h3>飲料</h3>
+            <div class="opts" data-group="drink-adult">
+              <div class="opt" data-v="冰烏龍茶"><span class="dot"></span><span class="em">🧊</span><span class="tx"><b>冰烏龍茶</b></span></div>
+              <div class="opt" data-v="熱烏龍茶"><span class="dot"></span><span class="em">🍵</span><span class="tx"><b>熱烏龍茶</b></span></div>
+              <div class="opt" data-v="不需要飲料"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要飲料</b></span></div>
+            </div>
+          </div>
+        </div>
+        <div id="kidBox" style="display:none">
+          <div class="sec"><h3>主食（二選一）</h3>
+            <div class="opts" data-group="main-kid">
+              <div class="opt" data-v="手工肉腸 PIZZA"><span class="dot"></span><span class="em">🍕</span><span class="tx"><b>手工肉腸 PIZZA</b></span></div>
+              <div class="opt" data-v="東岸甜蝦粗圓麵"><span class="dot"></span><span class="em">🍤</span><span class="tx"><b>東岸甜蝦粗圓麵</b></span></div>
+              <div class="opt" data-v="不需要主食"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要主食</b></span></div>
+            </div>
+          </div>
+          <div class="sec"><h3>湯品（單點，可不加）</h3>
+            <div class="opts" data-group="soup-kid">
+              <div class="opt box" data-v="南瓜濃湯" data-multi="1"><span class="dot"></span><span class="em">🎃</span><span class="tx"><b>南瓜濃湯</b></span></div>
+            </div>
+          </div>
+          <div class="sec"><h3>飲料</h3>
+            <div class="opts" data-group="drink-kid">
+              <div class="opt" data-v="冰烏龍茶"><span class="dot"></span><span class="em">🧊</span><span class="tx"><b>冰烏龍茶</b></span></div>
+              <div class="opt" data-v="熱烏龍茶"><span class="dot"></span><span class="em">🍵</span><span class="tx"><b>熱烏龍茶</b></span></div>
+              <div class="opt" data-v="不需要飲料"><span class="dot"></span><span class="em">✕</span><span class="tx"><b>不需要飲料</b></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="sec">
+          <label class="fld">備註</label>
+          <input type="text" id="note" placeholder="選填" autocomplete="off">
+        </div>
+        <button class="btn" id="add">加入點單</button>
+      </div>
+    </div>
+
+    <!-- 右：統計 -->
+    <div>
+      <div class="card">
+        <div class="chip-row"><span class="chip">即時統計</span></div>
+        <div class="tiles">
+          <div class="tile"><b id="tTotal">0</b><span>總人數</span></div>
+          <div class="tile"><b id="tAdult">0</b><span>大人</span></div>
+          <div class="tile"><b id="tKid">0</b><span>小孩</span></div>
+        </div>
+        <div id="stats"></div>
+        <div class="two" style="margin-top:18px">
+          <div><label class="fld">用餐日期</label><input type="text" id="mDate" placeholder="例：8/28（三）18:00"></div>
+          <div><label class="fld">聯絡人 / 電話</label><input type="text" id="mCon" placeholder="例：陳小姐 0912-345-678"></div>
+        </div>
+        <button class="btn gold" id="sheetBtn">產生餐廳訂單表</button>
+        <div class="tools">
+          <button class="btn sm ghost" id="copyStat">複製統計文字</button>
+          <button class="btn sm ghost" id="csv">下載 CSV</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chip-row"><span class="chip">點單名單</span></div>
+        <div id="list"><div class="empty">尚未有人點餐</div></div>
+      </div>
+    </div>
+  </div>
+  <footer>啄木鳥的家 WPCASA · 員工旅遊聚餐點單</footer>
+</div>
+
+<div id="overlay">
+  <div class="obar">
+    <button class="p" id="pPrint">列印 / 存成 PDF</button>
+    <button id="pDown">下載訂單表</button>
+    <button id="pClose">關閉</button>
+  </div>
+  <div id="sheetHost"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var orders=[], cur='adult', sel={};
+  function $(s){return document.querySelector(s);}
+  function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+  function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');
+    clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1900);}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  /* ---------- 表單 ---------- */
+  $$('.seg button').forEach(function(b){b.onclick=function(){
+    $$('.seg button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');cur=b.dataset.type;
+    $('#adultBox').style.display=cur==='adult'?'':'none';
+    $('#kidBox').style.display=cur==='kid'?'':'none';};});
+
+  $$('.opt').forEach(function(o){o.onclick=function(){
+    var g=o.parentNode.dataset.group;
+    if(o.dataset.multi){o.classList.toggle('on');sel[g]=o.classList.contains('on')?o.dataset.v:'';}
+    else{Array.prototype.forEach.call(o.parentNode.children,function(c){c.classList.remove('on');});
+      o.classList.add('on');sel[g]=o.dataset.v;}};});
+
+  function clearForm(){$('#name').value='';$('#note').value='';
+    $$('.opt').forEach(function(o){o.classList.remove('on');});sel={};}
+
+  $('#add').onclick=function(){
+    var name=$('#name').value.trim();
+    if(!name){toast('請先輸入姓名');$('#name').focus();return;}
+    var mk=cur==='adult'?'main-adult':'main-kid';
+    if(!sel[mk]){toast(cur==='adult'?'請選擇主菜':'請選擇主食');return;}
+    if(orders.some(function(o){return o.name===name;})&&
+       !confirm('「'+name+'」已經在名單裡了，還要再新增一筆嗎？'))return;
+    orders.push({name:name,type:cur,main:sel[mk],
+      soup:cur==='kid'?(sel['soup-kid']||''):'',
+      drink:(cur==='adult'?sel['drink-adult']:sel['drink-kid'])||'',
+      note:$('#note').value.trim()});
+    clearForm();render();toast('已加入 '+name+' 的點單');
+  };
+
+  /* ---------- 統計 ---------- */
+  function tally(){
+    var t={adult:0,kid:0,mainA:{},mainK:{},soup:{},drink:{},notes:[]};
+    orders.forEach(function(o){
+      if(o.type==='kid'){t.kid++;
+        if(o.main&&o.main!=='不需要主食')t.mainK[o.main]=(t.mainK[o.main]||0)+1;
+        if(o.soup)t.soup[o.soup]=(t.soup[o.soup]||0)+1;
+      }else{t.adult++;t.mainA[o.main]=(t.mainA[o.main]||0)+1;}
+      if(o.drink&&o.drink!=='不需要飲料')t.drink[o.drink]=(t.drink[o.drink]||0)+1;
+      if(o.note)t.notes.push({name:o.name,note:o.note});
+    });
+    return t;
+  }
+
+  function statBlock(title,map,denom){
+    var keys=Object.keys(map); if(!keys.length)return '';
+    var h='<div class="gtitle">'+title+'</div>';
+    keys.sort(function(a,b){return map[b]-map[a];}).forEach(function(k){
+      var pct=denom?Math.round(map[k]/denom*100):0;
+      h+='<div class="stat"><div class="top"><span>'+esc(k)+'</span><b>'+map[k]+' 份</b></div>'+
+         '<div class="bar"><i style="width:'+pct+'%"></i></div></div>';});
+    return h;
+  }
+
+  function render(){
+    var t=tally();
+    $('#tTotal').textContent=orders.length;
+    $('#tAdult').textContent=t.adult;
+    $('#tKid').textContent=t.kid;
+    var max=Math.max(1,orders.length);
+    $('#stats').innerHTML=(statBlock('主菜（大人）',t.mainA,max)+statBlock('主食（兒童）',t.mainK,max)+
+      statBlock('湯品（兒童加點）',t.soup,max)+statBlock('飲料',t.drink,max))||
+      '<div class="empty">還沒有資料，先貼上點單碼或手動代填</div>';
+
+    if(!orders.length){$('#list').innerHTML='<div class="empty">尚未有人點餐</div>';return;}
+    $('#list').innerHTML=orders.map(function(o,i){
+      var d=[o.main]; if(o.soup)d.push(o.soup);
+      if(o.drink&&o.drink!=='不需要飲料')d.push(o.drink);
+      if(o.note)d.push('備註：'+o.note);
+      return '<div class="row"><div class="av'+(o.type==='kid'?' kid':'')+'">'+(o.type==='kid'?'童':'大')+
+        '</div><div class="info"><b>'+esc(o.name)+'</b><p>'+esc(d.join('　·　'))+
+        '</p></div><button class="del" data-i="'+i+'">刪除</button></div>';}).join('');
+    $$('.del').forEach(function(b){b.onclick=function(){orders.splice(+b.dataset.i,1);render();};});
+  }
+
+  /* ---------- 匯入 / 匯出 ---------- */
+  function copy(text,msg){
+    var ta=document.createElement('textarea');ta.value=text;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast(msg);}catch(e){toast('請手動複製');}
+    document.body.removeChild(ta);
+  }
+
+  $('#imp').onclick=function(){
+    var raw=$('#code').value;
+    if(!raw.trim()){toast('請先貼上點單碼');return;}
+    // 支援一次貼多筆：抓出所有 [...] 區塊
+    var chunks=raw.match(/\[[\s\S]*?\](?=\s*(WPCASA|\[|$))/g)||[];
+    if(!chunks.length){var m=raw.match(/\[[\s\S]*\]/);if(m)chunks=[m[0]];}
+    if(!chunks.length){toast('看不出點單碼格式，請確認有整段複製到');return;}
+    var have={};orders.forEach(function(o){have[key(o)]=1;});
+    var n=0,bad=0;
+    chunks.forEach(function(c){
+      var arr;try{arr=JSON.parse(c);}catch(e){bad++;return;}
+      if(!Array.isArray(arr)){bad++;return;}
+      arr.forEach(function(o){
+        if(!o||!o.name||!o.main)return;
+        var k=key(o); if(have[k])return;
+        have[k]=1;orders.push({name:String(o.name),type:o.type==='kid'?'kid':'adult',
+          main:String(o.main||''),soup:String(o.soup||''),drink:String(o.drink||''),note:String(o.note||'')});
+        n++;});
+    });
+    render();
+    $('#code').value='';
+    toast('已合併 '+n+' 筆'+(bad?'（'+bad+' 段格式有誤已略過）':''));
+  };
+  function key(o){return [o.name,o.type,o.main,o.soup,o.drink,o.note].join('|');}
+
+  $('#exp').onclick=function(){
+    if(!orders.length){toast('目前沒有資料');return;}
+    var s='WPCASA'+JSON.stringify(orders);
+    $('#code').value=s;copy(s,'總備份碼已複製');
+  };
+  $('#clr').onclick=function(){
+    if(!orders.length)return;
+    if(confirm('確定要清空所有點單嗎？')){orders=[];$('#code').value='';render();toast('已清空');}
+  };
+
+  $('#copyStat').onclick=function(){
+    if(!orders.length){toast('目前沒有資料');return;}
+    var t=tally();
+    var L=['【啄木鳥的家 · 聚餐點單統計】','總人數 '+orders.length+'（大人 '+t.adult+'、小孩 '+t.kid+'）',''];
+    function push(title,map){var k=Object.keys(map);if(!k.length)return;
+      L.push('■ '+title);k.forEach(function(x){L.push('　'+x+'　'+map[x]+' 份');});L.push('');}
+    push('主菜（大人）',t.mainA);push('主食（兒童）',t.mainK);push('湯品',t.soup);push('飲料',t.drink);
+    if(t.notes.length){L.push('■ 特殊備註');t.notes.forEach(function(x){L.push('　'+x.name+'：'+x.note);});}
+    copy(L.join('\n'),'統計文字已複製');
+  };
+
+  $('#csv').onclick=function(){
+    if(!orders.length){toast('目前沒有資料');return;}
+    var rows=[['姓名','身分','主菜/主食','湯品','飲料','備註']];
+    orders.forEach(function(o){rows.push([o.name,o.type==='kid'?'小孩':'大人',o.main,o.soup,o.drink,o.note]);});
+    var csv='﻿'+rows.map(function(r){return r.map(function(c){
+      return '"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+    dl(new Blob([csv],{type:'text/csv'}),'聚餐點單.csv');toast('CSV 已下載');
+  };
+
+  function dl(blob,name){
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  }
+
+  /* ---------- 餐廳訂單表 ---------- */
+  function itemRow(name,qty){
+    return '<div class="s-item"><span class="n">'+esc(name)+'</span>'+
+           '<span class="q"><em>'+qty+'</em> 份</span></div>';
+  }
+  function group(title,map){
+    var k=Object.keys(map);if(!k.length)return '';
+    return '<div class="s-sec"><h3>'+title+'</h3><div class="s-items">'+
+      k.sort(function(a,b){return map[b]-map[a];}).map(function(x){return itemRow(x,map[x]);}).join('')+
+      '</div></div>';
+  }
+
+  function sheetHTML(){
+    var t=tally(), d=new Date();
+    var stamp=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+
+      ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    var date=$('#mDate').value.trim()||'—';
+    var con=$('#mCon').value.trim()||'—';
+
+    var rows=orders.map(function(o,i){
+      var extra=[];if(o.soup)extra.push(o.soup);
+      if(o.drink&&o.drink!=='不需要飲料')extra.push(o.drink);
+      return '<tr><td style="width:36px;color:#b3ab8d">'+(i+1)+'</td><td>'+esc(o.name)+'</td>'+
+        '<td style="width:56px">'+(o.type==='kid'?'小孩':'大人')+'</td><td>'+esc(o.main)+'</td>'+
+        '<td>'+esc(extra.join('、')||'—')+'</td><td class="k">'+esc(o.note||'')+'</td></tr>';}).join('');
+
+    return '<div class="sheet">'+
+      '<div class="s-head"><div class="s-logo">✦</div><div class="s-brand">啄木鳥的家　WPCASA</div>'+
+      '<div class="s-title">團 體 訂 餐 單</div><div class="s-sub">GROUP ORDER SHEET</div></div>'+
+      '<div class="s-div"></div>'+
+      '<div class="s-meta">'+
+        '<div><span>用餐日期</span><b>'+esc(date)+'</b></div>'+
+        '<div><span>總人數</span><b>'+orders.length+' 位</b></div>'+
+        '<div><span>大人 / 小孩</span><b>'+t.adult+' / '+t.kid+'</b></div>'+
+        '<div><span>聯絡人</span><b style="font-size:13px">'+esc(con)+'</b></div>'+
+      '</div>'+
+      group('主菜（大人）',t.mainA)+
+      group('主食（兒童）',t.mainK)+
+      group('湯品',t.soup)+
+      group('飲料',t.drink)+
+      (t.notes.length?'<div class="s-sec"><h3>特殊需求</h3><div class="s-note">'+
+        t.notes.map(function(x){return '<b>'+esc(x.name)+'</b>　'+esc(x.note);}).join('<br>')+
+        '</div></div>':'')+
+      '<div class="s-sec"><h3>訂餐明細</h3><table class="s-tb"><thead><tr><th></th><th>姓名</th><th>身分</th>'+
+      '<th>主菜 / 主食</th><th>加點 · 飲料</th><th>備註</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<div class="s-foot">本訂單由「啄木鳥的家 WPCASA 聚餐點單系統」產生　·　'+stamp+'</div>'+
+      '</div>';
+  }
+
+  $('#sheetBtn').onclick=function(){
+    if(!orders.length){toast('目前沒有資料，無法產生訂單表');return;}
+    $('#sheetHost').innerHTML=sheetHTML();
+    $('#overlay').classList.add('show');
+    window.scrollTo(0,0);
+  };
+  $('#pClose').onclick=function(){$('#overlay').classList.remove('show');};
+  $('#pPrint').onclick=function(){window.print();};
+  $('#pDown').onclick=function(){
+    var css=Array.prototype.map.call(document.styleSheets[0].cssRules,function(r){return r.cssText;}).join('\n');
+    var doc='<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">'+
+      '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+      '<title>啄木鳥的家 · 團體訂餐單</title><style>'+css+
+      'body{background:#e9e4d2;padding:26px 14px}#sheetHost{max-width:820px;margin:0 auto}'+
+      '@media print{body{background:#fff;padding:0}}</style></head><body><div id="sheetHost">'+
+      sheetHTML()+'</div></body></html>';
+    dl(new Blob([doc],{type:'text/html;charset=utf-8'}),'啄木鳥的家_團體訂餐單.html');
+    toast('訂單表已下載，可直接傳給餐廳');
+  };
+
+  $('#name').addEventListener('keydown',function(e){if(e.key==='Enter')$('#add').click();});
+  render();
+})();
+</script>
+</body>
+</html>
